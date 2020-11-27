@@ -13,6 +13,7 @@ class MyClient(discord.Client):
 
     check = '✅'
     cross = '❌'
+
     async def on_ready(self):
         print('Logged in as')
         print(self.user.name)
@@ -45,6 +46,31 @@ class MyClient(discord.Client):
           await message.add_reaction(self.check)
           await message.channel.send(response.format(message))
 
+    async def hitung_draw(self, message):
+      content = message.content
+      messages = content.split(' ')
+      if (len(messages) < 4):
+        response = 'Lakukan hitung dengan command `hitungdraw [skor saat ini] [gain point] [skor musuh saat ini] [gain point] [jam menit xhym]`'
+        await message.add_reaction(self.cross)
+        await message.channel.send(response.format(message))
+      else:
+        skor_kita = int(messages[1])
+        gp_kita = int(messages[2])
+        skor_musuh = int(messages[3])
+        gp_musuh = int(messages[4])
+        hour = int(messages[5].split('h')[0])
+        minute = int(messages[5].split('h')[1].split('m')[0])
+        minute = minute + hour*60
+        skor_kita += gp_kita*minute
+        skor_musuh += gp_musuh*minute
+        str_jm = messages[5]
+
+        response = '''Skor kita pada saat {0} adalah {1} dan skor musuh adalah {2}'''.format(str_jm, skor_kita, skor_musuh)
+
+        await message.add_reaction(self.check)
+        await message.channel.send(response.format(message))
+        
+
     async def on_message(self, message):
         if message.author.id == self.user.id:
             return
@@ -53,6 +79,8 @@ class MyClient(discord.Client):
           inps = inp.split(" ")
           if (inps[0] == "hitung"):
               await self.hitung_instant(message)
+          elif (inps[0] == "hitungdraw"):
+            await self.hitung_draw(message)
 
 client = MyClient()
 client.run(os.getenv("TOKEN"))
