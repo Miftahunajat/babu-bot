@@ -49,9 +49,26 @@ class MyClient(discord.Client):
     async def hitung_draw(self, message):
       content = message.content
       messages = content.split(' ')
-      if (len(messages) < 4):
-        response = 'Lakukan hitung dengan command `hitungdraw [skor saat ini] [gain point] [skor musuh saat ini] [gain point] [jam menit xhym]`'
+      if (len(messages) < 5):
+        response = 'Lakukan hitung dengan command `hitungdraw [skor saat ini] [gain point] [skor musuh saat ini] [gain point] [jam menit xhym (opsional)]`'
         await message.add_reaction(self.cross)
+        await message.channel.send(response.format(message))
+      elif (len(messages) == 5):
+        skor_kita = int(messages[1])
+        gp_kita = int(messages[2])
+        skor_musuh = int(messages[3])
+        gp_musuh = int(messages[4])
+        diff = int(abs(skor_kita - skor_musuh))
+        diff_gp = int(abs(gp_kita - gp_musuh))
+        hasil_menit = diff // diff_gp
+        jam = int(hasil_menit // 60)
+        menit = int(hasil_menit % 60)
+        skor_kita_sekarang = skor_kita + gp_kita*hasil_menit
+        skor_musuh_sekarang = skor_musuh + gp_musuh*hasil_menit
+        
+        response = '''Kemungkinan pada saat {0}h{1}m skor kita {2} dan skor musuh {3}'''.format(jam, menit, skor_kita_sekarang, skor_musuh_sekarang)
+
+        await message.add_reaction(self.check)
         await message.channel.send(response.format(message))
       else:
         skor_kita = int(messages[1])
