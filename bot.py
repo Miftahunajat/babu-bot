@@ -109,16 +109,16 @@ class MyClient(discord.Client):
     async def lapor_bot(self, message):
       content = message.content
       messages = content.split(' ')
-      nick = messages[1]
+      idPlayer = messages[1]
       content = message.content
       id = message.author.id
 
-      if (len(content.split(' ')) > 3):
-        for x in range(len(content.split(' ')) - 1):
-          self.loop.create_task(self.heal_reminder(id, nick, x+1, int(content.split(' ')[x+3]), message))
+      # if (len(content.split(' ')) > 3):
+      #   for x in range(len(content.split(' ')) - 1):
+      #     self.loop.create_task(self.heal_reminder(id, nick, x+1, int(content.split(' ')[x+3]), message))
 
       client = Client()
-      response = client.update_bot(nick, content.split(' ')[2])
+      response = client.update_bot_by_id(idPlayer, content.split(' ')[2])
       if (response):
         await message.add_reaction(self.check)
 

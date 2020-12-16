@@ -57,15 +57,14 @@ class Client:
     current_role = 'Senopati'
     total_ready = 0
     total_healing = 0
-    for row in cursor.execute("SELECT ROLE, AV, HEALING, HEAL, UPDATED_AT, NAME from PLAYERS"):
-      print(row[5])
+    for row in cursor.execute("SELECT ROLE, AV, HEALING, HEAL, UPDATED_AT, NAME, ID from PLAYERS"):
       if (row[0] == current_role):
         first = datetime.fromtimestamp(row[4])
         second = datetime.today()
         diff = Util.hour_minute_tostring(Util.seconds_to_hour_minute((second - first).total_seconds()))
         total_ready += row[1]
         total_healing += row[2]
-        sb += '''{0}   {1}  {2}   {3}\t{4}\n'''.format(row[1], row[2], row[3], diff, row[5])
+        sb += '''{0}   {1}  {2}   {3}\t{4} [{5}]\n'''.format(row[1], row[2], row[3], diff, row[5],row[6])
       else:
         first = datetime.fromtimestamp(row[4])
         second = datetime.today()
@@ -78,7 +77,7 @@ class Client:
         current_role = row[0]
         total_ready = row[1]
         total_healing = row[2]
-        sb += '''{0}   {1}  {2}   {3}\t{4}\n'''.format(row[1], row[2], row[3], diff, row[5])
+        sb += '''{0}   {1}  {2}   {3}\t{4} [{5}]\n'''.format(row[1], row[2], row[3], diff, row[5],row[6])
     sb +="=====================================\n"
     sb += '''{0} Ready\n'''.format(total_ready)
     sb += '''{0} Healing\n'''.format(total_healing)
@@ -95,6 +94,19 @@ class Client:
     print(name)
     print(status)
     cursor.execute("UPDATE PLAYERS set AV = {0}, HEALING = {1}, HEAL = {2}, UPDATED_AT = {3} where NAME = '{4}'".format(sts[0], sts[1], sts[2], updated, name))
+    conn.commit()
+    retval = cursor.rowcount
+    conn.close()
+    return retval == 1
+
+  def update_bot_by_id(self, id, status):
+    conn = sqlite3.connect('nrk.sqlite')
+    cursor = conn.cursor()
+    updated = int(time.time())
+    sts = list(status)
+    print(id)
+    print(status)
+    cursor.execute("UPDATE PLAYERS set AV = {0}, HEALING = {1}, HEAL = {2}, UPDATED_AT = {3} where ID = {4}".format(sts[0], sts[1], sts[2], updated, id))
     conn.commit()
     retval = cursor.rowcount
     conn.close()
