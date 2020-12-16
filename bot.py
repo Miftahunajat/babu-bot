@@ -113,9 +113,9 @@ class MyClient(discord.Client):
       content = message.content
       id = message.author.id
 
-      # if (len(content.split(' ')) > 3):
-      #   for x in range(len(content.split(' ')) - 1):
-      #     self.loop.create_task(self.heal_reminder(id, nick, x+1, int(content.split(' ')[x+3]), message))
+      if (len(content.split(' ')) > 3):
+        for x in range(len(content.split(' ')) - 1):
+          self.loop.create_task(self.heal_reminder(id, nick, x+1, int(content.split(' ')[x+3]), message))
 
       client = Client()
       response = client.update_bot_by_id(idPlayer, content.split(' ')[2])
@@ -123,14 +123,14 @@ class MyClient(discord.Client):
         await message.add_reaction(self.check)
 
     async def heal_reminder(self, id, name, number,  minutes, message):
-      await asyncio.sleep(minutes * 60)
+      await asyncio.sleep(minutes * 10)
       client = Client()
       client.update_heal_bot(name)
-      channel = self.get_channel(self.channel_test_bot)
+      channel = self.get_channel(self.channel_heal_reminder)
       
       response = "<@{0}> Your Bot {1} is healed".format(id, number)
-      # await channel.send(response)
-      await message.channel.send(response.format(message))
+      await channel.send(response)
+      # await message.channel.send(response.format(message))
 
     async def bot_list(self, message, timer = 0):
       await asyncio.sleep(timer)
