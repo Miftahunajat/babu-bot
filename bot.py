@@ -3,6 +3,8 @@ from pathlib import Path
 import discord
 import os
 from datetime import datetime, timedelta
+from client import Client
+import asyncio
 
 load_dotenv()
 load_dotenv(verbose=True)
@@ -13,6 +15,9 @@ class MyClient(discord.Client):
 
     check = '✅'
     cross = '❌'
+    channel_heal_reminder = 761168928986628096
+    channel_ruang_kendali_ck = 763398084012802069
+    MINUTES = 60
 
     async def on_ready(self):
         print('Logged in as')
@@ -86,18 +91,86 @@ class MyClient(discord.Client):
 
         await message.add_reaction(self.check)
         await message.channel.send(response.format(message))
+
+    async def update_bot_status(self, message):
+      nick = message.author.nick.split(' [')[0]
+      content = message.content
+      id = message.author.id
+
+      if (len(content.split(' ')) > 1):
+        for x in range(len(content.split(' ')) - 1):
+          self.loop.create_task(self.heal_reminder(id, nick, x+1, int(content.split(' ')[x+1]), message))
+
+      client = Client()
+      response = client.update_bot(nick, content)
+      if (response):
+        await message.add_reaction(self.check)
+
+    async def lapor_bot(self, message):
+      content = message.content
+      messages = content.split(' ')
+      nick = messages[1]
+      content = message.content
+      id = message.author.id
+
+      if (len(content.split(' ')) > 3):
+        for x in range(len(content.split(' ')) - 1):
+          self.loop.create_task(self.heal_reminder(id, nick, x+1, int(content.split(' ')[x+3]), message))
+
+      client = Client()
+      response = client.update_bot(nick, content.split(' ')[2])
+      if (response):
+        await message.add_reaction(self.check)
+
+    async def heal_reminder(self, id, name, number,  minutes, message):
+      await asyncio.sleep(minutes * 60)
+      client = Client()
+      client.update_heal_bot(name)
+      channel = self.get_channel(self.channel_test_bot)
+      
+      response = "<@{0}> Your Bot {1} is healed".format(id, number)
+      # await channel.send(response)
+      await message.channel.send(response.format(message))
+
+    async def bot_list(self, message, timer = 0):
+      await asyncio.sleep(timer)
+      client = Client()
+      response = client.bot_list()
+
+      await message.add_reaction(self.check)
+      await message.channel.send(response.format(message))
+
+    async def new_war(self, message):
+      client = Client()
+      client.new_war()
+      response = 'Status war sudah di reset'
+
+      self.loop.create_task(self.bot_list(message, 12.0*60*60))
+
+      await message.add_reaction(self.check)
+      await message.channel.send(response.format(message))
         
 
     async def on_message(self, message):
-        if message.author.id == self.user.id:
-            return
-        else:
-          inp = message.content
-          inps = inp.split(" ")
-          if (inps[0] == "hitung"):
-              await self.hitung_instant(message)
-          elif (inps[0] == "hitungdraw"):
-            await self.hitung_draw(message)
+      print(message)
+      print(message.content)
+      if message.author.id == self.user.id:
+          return
+      else:
+        inp = message.content
+        inps = inp.split(" ")
+        if (inps[0] == "hitung"):
+            await self.hitung_instant(message)
+        elif (inps[0] == "hitungdraw"):
+          await self.hitung_draw(message)
+        elif (len(inps[0].split(" ")[0]) == 3 and inps[0].split(" ")[0].isnumeric()):
+          await self.update_bot_status(message)
+        elif (inps[0] == "botlist"):
+          await self.bot_list(message)
+        elif (inps[0] == "newwar"):
+          await self.new_war(message)
+        elif (inps[0] == "Lapor"):
+          await self.lapor_bot(message)
 
 client = MyClient()
 client.run(os.getenv("TOKEN"))
