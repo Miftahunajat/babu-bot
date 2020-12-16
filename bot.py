@@ -123,7 +123,7 @@ class MyClient(discord.Client):
         await message.add_reaction(self.check)
 
     async def heal_reminder(self, id, name, number,  minutes, message):
-      await asyncio.sleep(minutes * 10)
+      await asyncio.sleep(minutes * 60)
       client = Client()
       client.update_heal_bot(name)
       channel = self.get_channel(self.channel_heal_reminder)
